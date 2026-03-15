@@ -6,6 +6,7 @@ import PricingPage from "./pages/PricingPage";
 import InstructionsPage from "./pages/InstructionsPage";
 import ContactPage from "./pages/ContactPage";
 
+
 const tabs = [
   { id: "home", label: "Home" },
   { id: "pricing", label: "Pricing" },
