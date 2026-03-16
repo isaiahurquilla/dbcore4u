@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { shirtColors, sweaterColors, sizes } from "../data/siteData";
 
+const ORDER_EMAIL = "isaiahurquilla@gmail.com";
+
 export default function ContactPage() {
   const formRef = useRef(null);
 
@@ -15,7 +17,8 @@ export default function ContactPage() {
   const [color, setColor] = useState("Black");
   const [size, setSize] = useState("M");
   const [requests, setRequests] = useState("");
-  const [uploadedFileName, setUploadedFileName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [imageName, setImageName] = useState("");
   const [status, setStatus] = useState("");
   const [isSending, setIsSending] = useState(false);
 
@@ -33,11 +36,6 @@ export default function ContactPage() {
     else setColor(shirtColors[0]);
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    setUploadedFileName(file ? file.name : "");
-  };
-
   const handleSend = async (e) => {
     e.preventDefault();
     setStatus("");
@@ -53,19 +51,27 @@ export default function ContactPage() {
         }
       );
 
-      setStatus("Order sent successfully.");
+      setStatus(
+        "Order details sent. Check your email for the reply asking you to send your image."
+      );
+
       setItemType("Shirt");
       setColor("Black");
       setSize("M");
       setRequests("");
-      setUploadedFileName("");
+      setCustomerEmail("");
+      setImageName("");
 
       if (formRef.current) {
         formRef.current.reset();
       }
     } catch (error) {
-      console.error(error);
-      setStatus("Something went wrong while sending. Please try again.");
+      console.error("EmailJS error:", error);
+      setStatus(
+        error?.text ||
+          error?.message ||
+          "Something went wrong while sending."
+      );
     } finally {
       setIsSending(false);
     }
@@ -76,8 +82,8 @@ export default function ContactPage() {
       <div>
         <h2 className="text-3xl font-bold sm:text-4xl">Contact Page</h2>
         <p className="mt-2 max-w-3xl text-slate-300">
-          Fill out the order details below and send your design as a real file
-          attachment.
+          Send your order details here. After submitting, you’ll get a reply
+          email asking you to send your image to {ORDER_EMAIL}.
         </p>
       </div>
 
@@ -131,19 +137,29 @@ export default function ContactPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="imageUpload">Upload image file</Label>
+                <Label htmlFor="customerEmail">Your email</Label>
                 <Input
-                  id="imageUpload"
-                  name="design_file"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="rounded-xl border-white/10 bg-slate-950 text-white file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-slate-950"
+                  id="customerEmail"
+                  name="customer_email"
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  className="rounded-xl border-white/10 bg-slate-950 text-white"
                   required
                 />
-                <p className="text-xs text-slate-400">
-                  Selected file: {uploadedFileName || "No file chosen yet"}
-                </p>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="imageName">Image file name</Label>
+                <Input
+                  id="imageName"
+                  name="image_name"
+                  type="text"
+                  value={imageName}
+                  onChange={(e) => setImageName(e.target.value)}
+                  placeholder="Example: mydesign.png"
+                  className="rounded-xl border-white/10 bg-slate-950 text-white"
+                />
               </div>
             </div>
 
@@ -161,7 +177,7 @@ export default function ContactPage() {
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="rounded-2xl bg-white/5 p-4 text-sm text-slate-300">
-                Your order details and uploaded image will be sent together.
+                After submitting, we’ll email you back asking for your image.
               </div>
 
               <Button
@@ -174,9 +190,7 @@ export default function ContactPage() {
               </Button>
             </div>
 
-            {status && (
-              <p className="mt-4 text-sm text-slate-200">{status}</p>
-            )}
+            {status && <p className="mt-4 text-sm text-slate-200">{status}</p>}
           </form>
         </CardContent>
       </Card>
